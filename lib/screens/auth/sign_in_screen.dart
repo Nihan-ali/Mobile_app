@@ -5,6 +5,7 @@ import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import '../../utils/validators.dart';
 import '../../constants/route_names.dart';
+import 'forgot_password_screen.dart';
 import 'sign_up_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -34,7 +35,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
     setState(() => _isLoading = true);
 
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2)); // Mock delay
 
     setState(() => _isLoading = false);
 
@@ -45,6 +46,9 @@ class _SignInScreenState extends State<SignInScreen> {
           backgroundColor: AppColors.success,
         ),
       );
+
+      // Navigate to Home Page
+      Navigator.pushReplacementNamed(context, '/home');
     }
   }
 
@@ -292,7 +296,6 @@ class _SignInScreenState extends State<SignInScreen> {
                               Text(
                                 'Remember me',
                                 style: AppTextStyles.bodyMedium.copyWith(
-                                  //set color 7f8b9c
                                   color: const Color(0xFF7f8b9c),
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -300,15 +303,23 @@ class _SignInScreenState extends State<SignInScreen> {
                               ),
                               const Spacer(),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ForgotPasswordScreen()),
+                                  );
+                                },
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: const Size(0, 0),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                                 child: Text(
                                   'Forgot Password?',
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    //set color 7f8b9c
                                     color: const Color(0xFF7f8b9c),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,

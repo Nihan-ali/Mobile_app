@@ -105,4 +105,24 @@ class AppTextStyles {
     color: AppColors.primary,
     decoration: TextDecoration.underline,
   );
+
+  // Titles
+  static const TextStyle titleLarge = TextStyle(
+    fontFamily: 'Roboto',
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textPrimary,
+  );
+  static const TextStyle titleMedium = TextStyle(
+    fontFamily: 'Roboto',
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+  static const TextStyle titleSmall = TextStyle(
+    fontFamily: 'Roboto',
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
 }

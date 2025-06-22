@@ -28,4 +28,7 @@ class AppColors {
   // Social Media Colors
   static const Color google = Color(0xFFDB4437);
   static const Color facebook = Color(0xFF4267B2);
+
+  //card colors
+  static const Color cardBackground = Color(0xFFF3F4F6);
 }

@@ -13,6 +13,10 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final bool enabled;
   final EdgeInsetsGeometry? contentPadding;
+  final int? maxLines;
+  final int? minLines;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const CustomTextField({
     super.key,
@@ -26,6 +30,10 @@ class CustomTextField extends StatelessWidget {
     this.suffixIcon,
     this.enabled = true,
     this.contentPadding,
+    this.maxLines = 1,
+    this.minLines,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -45,15 +53,23 @@ class CustomTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           enabled: enabled,
+          maxLines: obscureText ? 1 : maxLines,
+          minLines: minLines,
+          readOnly: readOnly,
+          onTap: onTap,
           style: AppTextStyles.inputText,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: AppTextStyles.inputHint,
+            hintStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textHint,
+            ),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             filled: true,
             fillColor: AppColors.surfaceWhite,
-            isDense: true, // 👈 important to shrink the internal space
+            isDense: true,
             contentPadding: contentPadding ??
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             border: OutlineInputBorder(

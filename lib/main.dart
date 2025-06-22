@@ -4,6 +4,8 @@ import 'constants/text_styles.dart';
 import 'constants/route_names.dart';
 import 'screens/auth/sign_in_screen.dart';
 import 'screens/auth/sign_up_screen.dart';
+import 'screens/auth/forgot_password_screen.dart';
+import 'screens/feed/home_page.dart'; // If needed
 import 'screens/feed/feed_screen.dart'; // If needed
 
 void main() {
@@ -33,6 +35,9 @@ class MyApp extends StatelessWidget {
       routes: {
         RouteNames.signIn: (context) => const SignInScreen(),
         RouteNames.signUp: (context) => const SignUpScreen(),
+        //forgot password screen
+        RouteNames.forgotPass: (context) => const ForgotPasswordScreen(),
+        RouteNames.home: (context) =>  HomePage(),
         // RouteNames.feed: (context) => const FeedScreen(), // Optional example
       },
     );
