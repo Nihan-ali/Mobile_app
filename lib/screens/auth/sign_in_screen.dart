@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 import '../../constants/text_styles.dart';
 import '../../widgets/custom_text_field.dart';
-import '../../widgets/custom_button.dart';
 import '../../utils/validators.dart';
 import '../../constants/route_names.dart';
 import 'forgot_password_screen.dart';
-import 'sign_up_screen.dart';
+import '../../constants/mock_data.dart';
+import '../../services/auth_service.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -22,6 +22,7 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   bool _rememberMe = false;
+  String _selectedLanguage = mockLanguages.first;
 
   @override
   void dispose() {
@@ -30,27 +31,39 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
+  // Simulated sign-in handler (mock API)
   Future<void> _handleSignIn() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+  setState(() => _isLoading = true);
 
-    await Future.delayed(const Duration(seconds: 2)); // Mock delay
+  final authService = AuthService();
+  final success = await authService.login(
+    _emailController.text,
+    _passwordController.text,
+  );
 
-    setState(() => _isLoading = false);
+  setState(() => _isLoading = false);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sign in successful!'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+  if (!mounted) return;
 
-      // Navigate to Home Page
-      Navigator.pushReplacementNamed(context, '/home');
-    }
+  if (success) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Sign in successful!'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+    Navigator.pushReplacementNamed(context, '/home');
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Invalid email or password'),
+        backgroundColor: AppColors.error,
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -59,18 +72,15 @@ class _SignInScreenState extends State<SignInScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // App header
             Padding(
-              padding:
-                  const EdgeInsets.all(32), // Increased horizontal padding here
+              padding: const EdgeInsets.all(32),
               child: Row(
                 children: [
                   Row(
                     children: [
-                      Image.asset(
-                        'assets/icons/Logo.png',
-                        width: 16,
-                        height: 16,
-                      ),
+                      Image.asset('assets/icons/Logo.png',
+                          width: 16, height: 16),
                       const SizedBox(width: 8),
                       Text(
                         'Meetmax',
@@ -84,61 +94,61 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   const Spacer(),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    decoration: const BoxDecoration(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      boxShadow: [
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: const [
                         BoxShadow(
                           color: Color.fromARGB(255, 226, 224, 224),
                           blurRadius: 2,
-                          offset: Offset(.2, .5),
+                          offset: Offset(0.2, 0.5),
                         ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'English (UK)',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFFB0B7C3),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.keyboard_arrow_down,
-                          size: 16,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedLanguage,
+                        icon: const Icon(Icons.keyboard_arrow_down,
+                            size: 16, color: Color(0xFFB0B7C3)),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
                           color: Color(0xFFB0B7C3),
                         ),
-                      ],
+                        items: mockLanguages.map((lang) {
+                          return DropdownMenuItem<String>(
+                            value: lang,
+                            child: Text(lang),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedLanguage = newValue!;
+                          });
+                        },
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
+
+            // Form content
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
                   child: Container(
-                    width: double.infinity,
                     constraints: const BoxConstraints(maxWidth: 600),
-                    margin: const EdgeInsets.fromLTRB(
-                        30, 32, 30, 180), // Wider side margins
+                    margin: const EdgeInsets.fromLTRB(30, 32, 30, 180),
                     child: Form(
                       key: _formKey,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 32),
                           Text(
                             'Sign In',
-                            style: AppTextStyles.heading3.copyWith(
-                              color: const Color(0xFF4E5D78),
-                            ),
+                            style: AppTextStyles.heading3
+                                .copyWith(color: const Color(0xFF4E5D78)),
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -151,104 +161,46 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           const SizedBox(height: 32),
 
-                          /// Social Login Buttons
+                          // Social login
                           Row(
                             children: [
                               Expanded(
-                                child: Container(
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFf6f7f8),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: TextButton.icon(
-                                    onPressed: () {},
-                                    icon: Image.asset(
-                                      'assets/icons/Google.png',
-                                      width: 16,
-                                      height: 16,
-                                    ),
-                                    label: Text(
-                                      'Log in with Google',
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: const Color(0xFF959faf),
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
+                                child: _buildSocialButton(
+                                  'Log in with Google',
+                                  'assets/icons/Google.png',
                                 ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: Container(
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFf6f7f8),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: TextButton.icon(
-                                    onPressed: () {},
-                                    icon: Image.asset(
-                                      'assets/icons/Apple.png',
-                                      width: 16,
-                                      height: 16,
-                                    ),
-                                    label: Text(
-                                      'Log in with Apple',
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: const Color(0xFF959faf),
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
+                                child: _buildSocialButton(
+                                  'Log in with Apple',
+                                  'assets/icons/Apple.png',
                                 ),
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(child: Divider(color: AppColors.border)),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                child: Text(
-                                  'OR',
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF4E5D78),
-                                  ),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: AppColors.border)),
-                            ],
-                          ),
+                          _buildDivider(),
+
                           const SizedBox(height: 32),
 
-                          /// Email Field
+                          // Email
                           CustomTextField(
-                            label: '',
                             hint: 'Your Email',
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             validator: Validators.email,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10), // Wider internal padding
-                            prefixIcon: const Icon(
-                              Icons.alternate_email,
-                              color: AppColors.textHint,
-                              size: 18,
-                            ),
+                            prefixIcon: const Icon(Icons.alternate_email,
+                                color: Color.fromARGB(255, 156, 163, 175),
+                                size: 18),
                           ),
                           const SizedBox(height: 16),
 
-                          /// Password Field
+                          // Password
                           CustomTextField(
-                            label: '',
-                            hint: 'Create Password',
+                            // label: '',
+                            hint: 'Password',
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
                             validator: Validators.password,
@@ -262,84 +214,29 @@ class _SignInScreenState extends State<SignInScreen> {
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _isPasswordVisible
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                                 color: AppColors.textHint,
                                 size: 18,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isPasswordVisible = !_isPasswordVisible;
-                                });
-                              },
+                              onPressed: () => setState(() =>
+                                  _isPasswordVisible = !_isPasswordVisible),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Checkbox(
-                                  value: _rememberMe,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _rememberMe = value ?? false;
-                                    });
-                                  },
-                                  activeColor: AppColors.primary,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Remember me',
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: const Color(0xFF7f8b9c),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const Spacer(),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ForgotPasswordScreen()),
-                                  );
-                                },
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(0, 0),
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  'Forgot Password?',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: const Color(0xFF7f8b9c),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 24),
+                          _buildRememberMeRow(),
 
-                          /// Sign In Button
+                          const SizedBox(height: 18),
+
+                          // Sign in button
                           SizedBox(
                             width: double.infinity,
                             height: 52,
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleSignIn,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF377cfe),
+                                backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
-                                elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -355,43 +252,33 @@ class _SignInScreenState extends State<SignInScreen> {
                                                 Colors.white),
                                       ),
                                     )
-                                  : Text(
-                                      'Sign In',
+                                  : Text('Sign In',
                                       style: AppTextStyles.buttonText
-                                          .copyWith(color: Colors.white),
-                                    ),
+                                          .copyWith(color: Colors.white)),
                             ),
                           ),
-                          const SizedBox(height: 16),
+
+                          const SizedBox(height: 20),
+
+                          // Sign up prompt
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 "You haven't any account? ",
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  // color: const Color(0xFF7f8b9c),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: AppTextStyles.bodyMedium
+                                    .copyWith(fontSize: 14),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, RouteNames.signUp);
-                                },
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(0, 0),
-                                ),
-                                child: Text(
-                                  'Sign Up',
-                                  style: AppTextStyles.link.copyWith(
-                                      decoration: TextDecoration.none),
-                                ),
+                                onPressed: () => Navigator.pushNamed(
+                                    context, RouteNames.signUp),
+                                child: Text('Sign Up',
+                                    style: AppTextStyles.link.copyWith(
+                                        decoration: TextDecoration.none)),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 36),
                         ],
                       ),
                     ),
@@ -402,6 +289,75 @@ class _SignInScreenState extends State<SignInScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: AppColors.border)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text('OR',
+              style: AppTextStyles.bodySmall
+                  .copyWith(color: const Color(0xFF4E5D78))),
+        ),
+        const Expanded(child: Divider(color: AppColors.border)),
+      ],
+    );
+  }
+
+  Widget _buildSocialButton(String text, String assetPath) {
+    return Container(
+      height: 44,
+      decoration: BoxDecoration(
+        color: const Color(0xFFf6f7f8),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: TextButton.icon(
+        onPressed: () {}, // Later integrate OAuth if needed
+        icon: Image.asset(assetPath, width: 16, height: 16),
+        label: Text(
+          text,
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            color: const Color(0xFF959faf),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRememberMeRow() {
+    return Row(
+      children: [
+        Checkbox(
+          value: _rememberMe,
+          onChanged: (value) => setState(() => _rememberMe = value ?? false),
+          activeColor: AppColors.primary,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Remember me',
+          style:
+              AppTextStyles.bodyMedium.copyWith(color: const Color(0xFF7f8b9c)),
+        ),
+        const Spacer(),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const ForgotPasswordScreen()));
+          },
+          child: Text(
+            'Forgot Password?',
+            style: AppTextStyles.bodyMedium
+                .copyWith(color: const Color(0xFF7f8b9c)),
+          ),
+        ),
+      ],
     );
   }
 }

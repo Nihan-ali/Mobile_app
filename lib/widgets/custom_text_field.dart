@@ -3,7 +3,6 @@ import '../constants/colors.dart';
 import '../constants/text_styles.dart';
 
 class CustomTextField extends StatelessWidget {
-  final String label;
   final String hint;
   final TextEditingController controller;
   final String? Function(String?)? validator;
@@ -17,10 +16,10 @@ class CustomTextField extends StatelessWidget {
   final int? minLines;
   final bool readOnly;
   final VoidCallback? onTap;
+  final TextStyle? hintStyle; 
 
   const CustomTextField({
     super.key,
-    required this.label,
     required this.hint,
     required this.controller,
     this.validator,
@@ -34,82 +33,57 @@ class CustomTextField extends StatelessWidget {
     this.minLines,
     this.readOnly = false,
     this.onTap,
+    this.hintStyle, 
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (label.isNotEmpty)
-          Text(
-            label,
-            style: AppTextStyles.inputLabel,
-          ),
-        if (label.isNotEmpty) const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          validator: validator,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          enabled: enabled,
-          maxLines: obscureText ? 1 : maxLines,
-          minLines: minLines,
-          readOnly: readOnly,
-          onTap: onTap,
-          style: AppTextStyles.inputText,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      enabled: enabled,
+      maxLines: obscureText ? 1 : maxLines,
+      minLines: minLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      style: AppTextStyles.inputText,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: hintStyle ??
+            const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textHint,
-            ),
-            prefixIcon: prefixIcon,
-            suffixIcon: suffixIcon,
-            filled: true,
-            fillColor: AppColors.surfaceWhite,
-            isDense: true,
-            contentPadding: contentPadding ??
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.border,
-                width: 1,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.border,
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.borderFocused,
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.error,
-                width: 1,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.error,
-                width: 2,
-              ),
-            ),
-          ),
+            ), // fallback to default
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: AppColors.surfaceWhite,
+        isDense: true,
+        contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
-      ],
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderFocused, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+      ),
     );
   }
 }

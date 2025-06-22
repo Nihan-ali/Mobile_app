@@ -98,3 +98,11 @@ final List<Map<String, String>> birthdays = [
     'note': 'Birthday today',
   },
 ];
+
+List<String> mockLanguages = [
+  'English (UK)',
+  'English (US)',
+  'French',
+  'German',
+  'Spanish',
+];
