@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../constants/mock_data.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -29,11 +30,24 @@ class _CreatePostPageState extends State<CreatePostPage> {
       return;
     }
 
-    print("Posted: $text");
-    print("Image: ${_selectedImage?.path}");
+    // Add post to the mock post list
+    posts.insert(0, {
+      'user': 'Saleh Abedin',
+      'userImage': 'assets/images/Profile.png',
+      'time': 'Just now',
+      //caption can be empty
+      'caption': text.isEmpty ? '' : text,
+      'images': _selectedImage != null ? [_selectedImage!.path] : [],
+      'comments': 0,
+      'shares': 0,
+      'likes': 0,
+      'extraImage': 'assets/images/Like1.png',
+      'commentList': [],
+    });
+
     _controller.clear();
     setState(() => _selectedImage = null);
-    Navigator.pop(context);
+    Navigator.pop(context); // Go back to home/feed page
   }
 
   Widget _actionButton(String label, String iconPath, VoidCallback onTap) {
@@ -82,8 +96,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 ),
                 child: TextField(
                   decoration: InputDecoration(
-                    //hint text with style
-
                     hintText: "Search for something here...",
                     hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: Padding(
@@ -112,7 +124,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// Header row: back + title + visibility
+                  /// Header
                   Row(
                     children: [
                       IconButton(
@@ -147,7 +159,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
                   const SizedBox(height: 16),
 
-                  /// User input box
+                  /// Text input
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -210,7 +222,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
                   const SizedBox(height: 16),
 
-                  /// Action Buttons
+                  /// Action buttons
                   _actionButton('Live', 'assets/icons/Video-camera.png', () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -230,7 +242,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
             ),
           ),
 
-          /// Post Button fixed at bottom
+          /// Submit Button
           Positioned(
             left: 16,
             right: 16,
@@ -247,8 +259,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   ),
                 ),
                 child: const Text("Post",
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white)),
               ),
             ),
           ),

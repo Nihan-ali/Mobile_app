@@ -34,12 +34,19 @@ final List<Map<String, dynamic>> posts = [
     'userImage': 'assets/images/Edison.png',
     'time': '15h',
     'caption': '',
-    'image': 'https://picsum.photos/id/1003/400/250',
+    'images': ['assets/images/PostImage1.png'],
     'comments': 3,
     'shares': 17,
     'likes': 9,
     'extraImage': 'assets/images/Like1.png',
-    'commentList': []
+    'commentList': [
+      {
+        'user': 'John Doe',
+        'userImage': 'assets/images/Profile.png',
+        'text': 'Amazing post!',
+        'replies': []
+      }
+    ]
   },
   {
     'user': 'Prothinidi Thomas',
@@ -47,7 +54,7 @@ final List<Map<String, dynamic>> posts = [
     'time': '2d',
     'caption':
         "If you think adventure is dangerous, try routine, it’s lethal Paulo Coelho! Good morning all friends.",
-    'image': 'https://picsum.photos/id/1011/400/250',
+    'images': ['assets/images/Post Photos1.png','assets/images/Post Photos2.png'],
     'extraImage': 'assets/images/Like2.png',
     'comments': 3,
     'shares': 5,

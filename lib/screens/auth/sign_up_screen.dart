@@ -1,5 +1,6 @@
 // lib/screens/auth/sign_up_screen.dart
 import 'package:flutter/material.dart';
+import 'package:lii_lab_assessment/services/auth_service.dart';
 import '../../constants/colors.dart';
 import '../../constants/text_styles.dart';
 import '../../widgets/custom_text_field.dart';
@@ -20,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _dobController = TextEditingController();
+
   String _selectedLanguage = mockLanguages.first;
 
   String _gender = 'Male';
@@ -40,17 +42,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
+
+    final authService = AuthService();
+    final success = await authService.signUp(
+      _emailController.text,
+      _passwordController.text,
+    );
+
     setState(() => _isLoading = false);
 
-    if (mounted) {
+    if (!mounted) return;
+
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Sign up successful!'),
+          content: Text('Sign in successful!'),
           backgroundColor: AppColors.success,
         ),
       );
       Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid email or password'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -65,8 +82,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        _dobController.text =
-            "${picked.day}/${picked.month}/${picked.year}";
+        _dobController.text = "${picked.day}/${picked.month}/${picked.year}";
       });
     }
   }
@@ -87,7 +103,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   // Header
                   Row(
                     children: [
-                      Image.asset('assets/icons/Logo.png', width: 16, height: 16),
+                      Image.asset('assets/icons/Logo.png',
+                          width: 16, height: 16),
                       const SizedBox(width: 8),
                       Text(
                         'Meetmax',
@@ -99,50 +116,53 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       const Spacer(),
                       Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromARGB(255, 226, 224, 224),
-                          blurRadius: 2,
-                          offset: Offset(0.2, 0.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color.fromARGB(255, 226, 224, 224),
+                              blurRadius: 2,
+                              offset: Offset(0.2, 0.5),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedLanguage,
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            size: 16, color: Color(0xFFB0B7C3)),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFFB0B7C3),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedLanguage,
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                size: 16, color: Color(0xFFB0B7C3)),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFB0B7C3),
+                            ),
+                            items: mockLanguages.map((lang) {
+                              return DropdownMenuItem<String>(
+                                value: lang,
+                                child: Text(lang),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedLanguage = newValue!;
+                              });
+                            },
+                          ),
                         ),
-                        items: mockLanguages.map((lang) {
-                          return DropdownMenuItem<String>(
-                            value: lang,
-                            child: Text(lang),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedLanguage = newValue!;
-                          });
-                        },
-                      ),
-                    ),
-                  )
+                      )
                     ],
                   ),
                   const SizedBox(height: 32),
-                  Text('Getting Started', style: AppTextStyles.heading3.copyWith(color: const Color(0xFF4E5D78))),
+                  Text('Getting Started',
+                      style: AppTextStyles.heading3
+                          .copyWith(color: const Color(0xFF4E5D78))),
                   const SizedBox(height: 12),
                   Text(
                     'Create an account to continue and connect with the people.',
-                    style: AppTextStyles.bodyMedium.copyWith(color: const Color(0xFF4e5d78), fontSize: 14),
+                    style: AppTextStyles.bodyMedium
+                        .copyWith(color: const Color(0xFF4e5d78), fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -152,12 +172,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(
                         child: TextButton.icon(
                           onPressed: () {},
-                          icon: Image.asset('assets/icons/Google.png', width: 16),
-                          label: Text('Log in with Google', style: AppTextStyles.bodyMedium.copyWith(fontSize: 12)),
+                          icon:
+                              Image.asset('assets/icons/Google.png', width: 16),
+                          label: Text('Log in with Google',
+                              style: AppTextStyles.bodyMedium
+                                  .copyWith(fontSize: 12)),
                           style: TextButton.styleFrom(
                             backgroundColor: const Color(0xFFf6f7f8),
                             padding: const EdgeInsets.all(12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6)),
                           ),
                         ),
                       ),
@@ -165,12 +189,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(
                         child: TextButton.icon(
                           onPressed: () {},
-                          icon: Image.asset('assets/icons/Apple.png', width: 16),
-                          label: Text('Log in with Apple', style: AppTextStyles.bodyMedium.copyWith(fontSize: 12)),
+                          icon:
+                              Image.asset('assets/icons/Apple.png', width: 16),
+                          label: Text('Log in with Apple',
+                              style: AppTextStyles.bodyMedium
+                                  .copyWith(fontSize: 12)),
                           style: TextButton.styleFrom(
                             backgroundColor: const Color(0xFFf6f7f8),
                             padding: const EdgeInsets.all(12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6)),
                           ),
                         ),
                       ),
@@ -182,7 +210,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(child: Divider(color: AppColors.border)),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('OR', style: TextStyle(color: Color(0xFF4E5D78))),
+                        child: Text('OR',
+                            style: TextStyle(color: Color(0xFF4E5D78))),
                       ),
                       Expanded(child: Divider(color: AppColors.border)),
                     ],
@@ -195,13 +224,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     validator: Validators.email,
-                    prefixIcon: const Icon(Icons.alternate_email, color: Color.fromARGB(255, 156, 163, 175), size: 18),
+                    prefixIcon: const Icon(Icons.alternate_email,
+                        color: Color.fromARGB(255, 156, 163, 175), size: 18),
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     hint: 'Your Name',
                     controller: _nameController,
-                    prefixIcon: const Icon(Icons.person_outline, color: AppColors.textHint, size: 18),
+                    prefixIcon: const Icon(Icons.person_outline,
+                        color: AppColors.textHint, size: 18),
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
@@ -209,14 +240,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
                     validator: Validators.password,
-                    prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textHint, size: 18),
+                    prefixIcon: const Icon(Icons.lock_outline,
+                        color: AppColors.textHint, size: 18),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _isPasswordVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: AppColors.textHint,
                         size: 18,
                       ),
-                      onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                      onPressed: () => setState(
+                          () => _isPasswordVisible = !_isPasswordVisible),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -226,7 +261,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: CustomTextField(
                         hint: 'Date of birth',
                         controller: _dobController,
-                        prefixIcon: const Icon(Icons.calendar_today, color: AppColors.textHint, size: 18),
+                        prefixIcon: const Icon(Icons.calendar_today,
+                            color: AppColors.textHint, size: 18),
                       ),
                     ),
                   ),
@@ -234,7 +270,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                   // Gender Selection
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -247,13 +284,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Radio<String>(
                           value: 'Male',
                           groupValue: _gender,
-                          onChanged: (value) => setState(() => _gender = value!),
+                          onChanged: (value) =>
+                              setState(() => _gender = value!),
                         ),
                         const Text('Male'),
                         Radio<String>(
                           value: 'Female',
                           groupValue: _gender,
-                          onChanged: (value) => setState(() => _gender = value!),
+                          onChanged: (value) =>
+                              setState(() => _gender = value!),
                         ),
                         const Text('Female'),
                       ],
@@ -271,21 +310,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         backgroundColor: const Color(0xFF377cfe),
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       child: _isLoading
-                          ? const CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-                          : Text('Sign Up', style: AppTextStyles.buttonText.copyWith(color: Colors.white)),
+                          ? const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white))
+                          : Text('Sign Up',
+                              style: AppTextStyles.buttonText
+                                  .copyWith(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Already have an account? ", style: AppTextStyles.bodyMedium),
+                      Text("Already have an account? ",
+                          style: AppTextStyles.bodyMedium),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: Text('Sign In', style: AppTextStyles.link.copyWith(decoration: TextDecoration.none)),
+                        child: Text('Sign In',
+                            style: AppTextStyles.link
+                                .copyWith(decoration: TextDecoration.none)),
                       ),
                     ],
                   ),

@@ -2,17 +2,31 @@ import 'package:flutter/material.dart';
 import '../../constants/mock_data.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/event_item.dart';
-import '../../widgets/comment_thread.dart';
 import 'create_post_page.dart';
+import '../../services/auth_service.dart';
+import '../../screens/auth/sign_in_screen.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final String profileImage = 'assets/images/Profile.png';
   final String iconPath = 'assets/icons/';
 
   @override
   Widget build(BuildContext context) {
+    if (!AuthService().isLoggedIn) {
+      Future.microtask(() {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => const SignInScreen()));
+      });
+      return const Scaffold();
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -60,7 +74,6 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 10),
 
           // Stories
-          // Stories
           SizedBox(
             height: 100,
             child: ListView.separated(
@@ -88,7 +101,7 @@ class HomePage extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Input Box
+          // Input field only
           Row(
             children: [
               const CircleAvatar(
@@ -103,11 +116,12 @@ class HomePage extends StatelessWidget {
                     color: const Color(0xFFF0F2F5),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const TextField(
-                    decoration: InputDecoration(
-                      hintText: "What's happening?",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: InputBorder.none,
+                  height: 40,
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "What's happening?",
+                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
                 ),
@@ -117,31 +131,34 @@ class HomePage extends StatelessWidget {
 
           const SizedBox(height: 10),
 
+          // Action row with Post button inline
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               actionItem('Live'),
               actionItem('Photo'),
               actionItem('Feeling'),
-              // button will be the rightmost item
-              const SizedBox(width: 10), // spacing before button
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const CreatePostPage()),
                   );
+                  setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF377dff),
+                  backgroundColor: const Color(0xFF377DFF),
                   foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Post',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Post',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -157,18 +174,19 @@ class HomePage extends StatelessWidget {
                   userImage: post['userImage'],
                   time: post['time'],
                   caption: post['caption'],
-                  image: post['image'],
+                  images: (post['images'] ?? []).cast<String>(), 
                   comments: post['comments'],
                   shares: post['shares'],
                   likes: post['likes'],
                   extraImage: post['extraImage'],
-                  commentList: (post['commentList'] as List).cast<Map<String, dynamic>>(),
+                  commentList: (post['commentList'] ?? [])
+                      .cast<Map<String, dynamic>>(), 
                 ),
                 const Divider(),
               ],
             ),
 
-          // Events
+          // Recent Events
           Row(
             children: const [
               Text("Recent Event",
@@ -266,14 +284,17 @@ class HomePage extends StatelessWidget {
         iconFile = 'assets/icons/Smile.png';
         break;
       default:
-        iconFile = 'assets/icons/Logo.png'; // fallback
+        iconFile = 'assets/icons/Logo.png';
     }
 
     return Row(
       children: [
         Image.asset(iconFile, height: 18),
         const SizedBox(width: 6),
-        Text(label),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.w600), // bolder text
+        ),
       ],
     );
   }
