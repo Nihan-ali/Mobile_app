@@ -30,6 +30,7 @@ final List<Map<String, dynamic>> events = [
 
 final List<Map<String, dynamic>> posts = [
   {
+    'postId': 'post_1',
     'user': 'Sepural Gallery',
     'userImage': 'assets/images/Edison.png',
     'time': '15h',
@@ -49,6 +50,7 @@ final List<Map<String, dynamic>> posts = [
     ]
   },
   {
+    'postId': 'post_2',
     'user': 'Prothinidi Thomas',
     'userImage': 'assets/images/Eduardo.png',
     'time': '2d',

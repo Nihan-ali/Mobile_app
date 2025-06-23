@@ -5,6 +5,7 @@ import '../../widgets/event_item.dart';
 import 'create_post_page.dart';
 import '../../services/auth_service.dart';
 import '../../screens/auth/sign_in_screen.dart';
+import '../../constants/route_names.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final String profileImage = 'assets/images/Profile.png';
   final String iconPath = 'assets/icons/';
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -170,17 +172,18 @@ class _HomePageState extends State<HomePage> {
             Column(
               children: [
                 PostCard(
+                  postId: post['postId'] ?? 'post_${posts.indexOf(post)}',
                   user: post['user'],
                   userImage: post['userImage'],
                   time: post['time'],
                   caption: post['caption'],
-                  images: (post['images'] ?? []).cast<String>(), 
+                  images: (post['images'] ?? []).cast<String>(),
                   comments: post['comments'],
                   shares: post['shares'],
                   likes: post['likes'],
                   extraImage: post['extraImage'],
-                  commentList: (post['commentList'] ?? [])
-                      .cast<Map<String, dynamic>>(), 
+                  commentList:
+                      (post['commentList'] ?? []).cast<Map<String, dynamic>>(),
                 ),
                 const Divider(),
               ],
@@ -238,7 +241,49 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+          if (index == 4) {
+            // Open settings modal with logout
+            showModalBottomSheet(
+              context: context,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (context) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text("Settings",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Divider(),
+                      ListTile(
+                        leading: const Icon(Icons.logout, color: Colors.red),
+                        title: const Text("Log out",
+                            style: TextStyle(color: Colors.red)),
+                        onTap: () async {
+                          Navigator.pop(context); // Close modal
+                          await AuthService().logout();
+                          if (context.mounted) {
+                            Navigator.pushReplacementNamed(
+                                context, RouteNames.signIn);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+        },
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,

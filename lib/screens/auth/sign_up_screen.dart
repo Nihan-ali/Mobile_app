@@ -60,7 +60,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           backgroundColor: AppColors.success,
         ),
       );
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/home',
+        (route) => false,
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

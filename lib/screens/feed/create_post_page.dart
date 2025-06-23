@@ -32,10 +32,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     // Add post to the mock post list
     posts.insert(0, {
+      'postId':
+          'post_${DateTime.now().millisecondsSinceEpoch}', 
       'user': 'Saleh Abedin',
       'userImage': 'assets/images/Profile.png',
       'time': 'Just now',
-      //caption can be empty
       'caption': text.isEmpty ? '' : text,
       'images': _selectedImage != null ? [_selectedImage!.path] : [],
       'comments': 0,
